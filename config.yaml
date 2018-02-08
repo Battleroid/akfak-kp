@@ -1,0 +1,110 @@
+---
+settings:
+  # By default the output is set as the current directory for
+  # both server.json and discovery.json.
+  server_output: ./
+  
+  # Default fetch cycle interval of 10s.
+  server_interval: 10
+
+  # At most the fetch cycle can take default of 10s. Anything
+  # after 10s will be left out.
+  server_timeout: 10
+
+  # These alerts are set by default if not set globally
+  # 25, 50, 75 mil
+  #
+  # Alerts at the lowest level take precedence, much like hiera.
+  # Valid alert levels are normal, average, high and disaster.
+  # If **any** values are set for an alert dict it is used as is
+  # and not populated by the hierarchy.
+  #
+  # If you wish to disable alerting entirely, you can set a single
+  # alert value of normal to 0, this will tell Akfak to always
+  # report normal.
+  alerts:
+    average: 25000000
+    high: 50000000
+    disaster: 75000000
+
+  # Unless graphite is set it's not used, url is required.
+  graphite:
+    url: carbon.atl01.example.com
+    port: 2003
+
+  # Unless zabbix is set it's not used, url is required.
+  zabbix:
+    url: zabbix.example.com
+    port: 2181
+
+    # Key is not required, but this is the default key sent to zabbix
+    # accessible via 'kafka.lag[topic,consumer]'.
+    key: kafka.lag
+
+  # SASL plaintext support. If the sasl key is specified it will assume
+  # sasl support for the client. Only two values are expected, username
+  # and password.
+  sasl:
+    username: consumer
+    password: secret
+
+  # Let AkfakClients fetch topic:consumer offset information in parallel all
+  # at once, this gives us a massive speed improvement. Only turn off if it
+  # presents issues. By default it is on.
+  parallel_fetch: true
+
+# Each cluster 'client' can have the same name this will group
+# their topic/consumers together for the api, highly, highly recommended
+# if you have a ton of topics & consumers! Each cluster client is spun up
+# in its own thread, so very useful when fetching in parallel between
+# multiple clients.
+clusters:
+
+  - name: dc01
+    brokers: kafka01.dc01.example.com:9092
+    settings:
+      alerts:
+        disaster: 125000000
+      graphite:
+        prefix: dc01.kafka
+      # NOTE: For the zabbix discovery information, the topic:consumer 
+      # pairs are grouped by the zabbix name, not the cluster name! This is
+      # opposite to how the basic lag API groups info.
+      zabbix:
+        name: kafka.dc01
+    topics:
+      mytopic:
+        consumers:
+          # To list multiple consumers just make them an empty dict
+          # they will be populated from the cluster level.
+          mytopic-prod:
+          bogus-consumer-prod:
+      othertopic:
+        consumers:
+          othertopic-prod:
+            # These will take precedence over the cluster & default level alerts.
+            alerts:
+              high: 85000000
+              disaster: 100000000
+
+  - name: dc02
+    brokers: kafka01.dc02.example.com:9092
+    settings:
+      graphite:
+        prefix: dc02.kafka
+      zabbix:
+        name: kafka.dc02
+    topics:
+      mytopic:
+        consumers:
+          # This consumer will always report normal to Zabbix
+          mytopic-prod:
+            alerts:
+              normal: 0
+      othertopic:
+        consumers:
+          othertopic-prod:
+            alerts:
+              average: 2000
+              high: 3000
+              disaster: 5000
