@@ -1,4 +1,6 @@
 # akfak-kp
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FBattleroid%2Fakfak-kp.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FBattleroid%2Fakfak-kp?ref=badge_shield)
+
 
 Replacement for kafka-lag (fork with SASL support via [dpkp/kafka-python][dpkp]). Akfak should ideally suck less, or at least not suck *as much* as kafka-lag did.
 
@@ -43,3 +45,7 @@ The `/lag` endpoint can also take a path down to individual keys within the fina
 
 [dpkp]: https://github.com/dpkp/kafka-python
 [config]: config.yaml
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FBattleroid%2Fakfak-kp.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FBattleroid%2Fakfak-kp?ref=badge_large)
