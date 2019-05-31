@@ -3,11 +3,11 @@ import structlog
 import json
 
 
-from . import __version__
-from .akfak import AkfakServer
-from .api import create_api_app
-from .util import load_config, build_discovery_playlist
-from .log import setup_logging
+from akfak_kp import __version__
+from akfak_kp.akfak import AkfakServer
+from akfak_kp.api import create_api_app
+from akfak_kp.util import load_config, build_discovery_playlist
+from akfak_kp.log import setup_logging
 
 
 setup_logging('ERROR')

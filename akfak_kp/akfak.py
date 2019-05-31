@@ -17,9 +17,9 @@ import structlog
 from kafka import KafkaConsumer, TopicPartition
 from pyzabbix import ZabbixMetric, ZabbixSender
 
-from .enums import Level
-from .log import setup_logging
-from .util import build_discovery_playlist, load_config, sha256sum
+from akfak_kp.enums import Level
+from akfak_kp.log import setup_logging
+from akfak_kp.util import build_discovery_playlist, load_config, sha256sum
 
 
 # our own logger (for JSON output), null out the pykafka logs
@@ -56,7 +56,8 @@ class AkfakClient:
         # setup consumers for every pair
         # TODO: consumer creation should be a func to avoid indent vomit
         sasl_config = self.config['settings'].get('sasl', {})
-        if bool(sasl_config):
+        sasl_enabled = sasl_config.get('enabled', False)
+        if sasl_enabled['enabled']:
             self.log.info('sasl_settings_found')
         self.kafka_consumers = {}
         for topic, topic_config in self.config['topics'].items():
@@ -64,7 +65,7 @@ class AkfakClient:
             self.kafka_consumers.setdefault(topic, {})
             for group in topic_config['consumers']:
                 try:
-                    if bool(sasl_config):
+                    if sasl_enabled:
                         self.kafka_consumers[topic][group] = KafkaConsumer(
                                 group_id=group,
                                 bootstrap_servers=self.config['brokers'].split(','),
@@ -85,12 +86,15 @@ class AkfakClient:
                                           f'{group}'
                         )
 
+                    # Do metadata update via .topics() because kafka-python for some reason
+                    # doesn't automatically fetch the fucking metadata on init
+                    self.kafka_consumers[topic][group].topics()
                     if not self.kafka_consumers[topic][group].partitions_for_topic(topic):
                         del self.kafka_consumers[topic][group]
                         raise Exception('Could not get partitions')
                 except Exception as e:
                     self.log.error(
-                            'kafka_broker_error',
+                            'kafka_broker_setup_error',
                             exc_info=e,
                             topic=topic,
                             consumer=group

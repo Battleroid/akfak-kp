@@ -4,9 +4,10 @@ import time
 
 import structlog
 from flask import Blueprint, Flask, abort, current_app, jsonify, request
-from gevent.wsgi import WSGIServer
+# from gevent.wsgi import WSGIServer
+from gevent.pywsgi import WSGIServer
 
-from .log import setup_logging
+from akfak_kp.log import setup_logging
 
 setup_logging()
 api_log = structlog.get_logger('akfak.api')
@@ -37,6 +38,10 @@ def lag_path(path):
         try:
             while split_path:
                 key = split_path.pop()
+                if key == '_keys':
+                    return jsonify(list(sub.keys()))
+                if key == '_values':
+                    return jsonify(list(sub.values()))
                 sub = sub[key]
         except KeyError as e:
             lag_log.error('invalid_lag_path', path=request.full_path)

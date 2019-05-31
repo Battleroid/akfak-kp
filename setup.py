@@ -1,11 +1,7 @@
-from pip.download import PipSession
-from pip.req import parse_requirements
 from setuptools import find_packages, setup
+from akfak_kp import __version__ as akfak_version
 
-from akfak import __version__ as akfak_version
-
-reqs = parse_requirements('requirements.txt', session=PipSession())
-requirements = [str(req.req) for req in reqs]
+requirements = [l.split(' ')[0] for l in open('requirements.txt').read().splitlines() if not l.startswith('#')]
 
 setup(
     name='akfak-kp',
@@ -18,6 +14,6 @@ setup(
     install_requires=requirements,
     entry_points="""
         [console_scripts]
-        akfak-kp=akfak.cli:cli
+        akfak-kp=akfak_kp.cli:cli
     """
 )

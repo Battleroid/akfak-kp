@@ -43,8 +43,11 @@ settings:
 
   # SASL plaintext support. If the sasl key is specified it will assume
   # sasl support for the client. Only two values are expected, username
-  # and password.
+  # and password. By default SASL is disabled (enabled set to false).
+  # It is possible to set this to false on individual groups to selectively
+  # enable and disable SASL usage for topics that require it.
   sasl:
+    enabled: true
     username: consumer
     password: secret
 
