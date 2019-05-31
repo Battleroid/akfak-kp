@@ -57,7 +57,7 @@ class AkfakClient:
         # TODO: consumer creation should be a func to avoid indent vomit
         sasl_config = self.config['settings'].get('sasl', {})
         sasl_enabled = sasl_config.get('enabled', False)
-        if sasl_enabled:
+        if sasl_enabled['enabled']:
             self.log.info('sasl_settings_found')
         self.kafka_consumers = {}
         for topic, topic_config in self.config['topics'].items():
